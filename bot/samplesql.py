@@ -122,19 +122,3 @@ def selectNextMonthPlan():
     nextMonth = datetime.date(today.year,today.month%12+1,1)
     return selectMonthPlan(nextMonth)
 
-os.environ['DATABASE_URL'] = 'postgres://znbsgmzmumcwna:ea509f79b04c4ebc12f441f31389728f1d9985da0ead6cf76bc1f0d2be7486ce@ec2-54-243-38-139.compute-1.amazonaws.com:5432/d4cqsd3c2mss6m'
-'''
-print(selectNextPlan())
-print(selectDatePlan(datetime.date(2017,1,29)))
-print(selectDatePlan(datetime.date(2018,1,1)))
-print(selectToDayPlan())
-print(selectTomorrowPlan())
-print(selectWeekPlan(datetime.date(2017,1,28)))
-print(selectMonthPlan(datetime.date(2017,2,2)))
-print(selectThisMonthPlan())
-print(selectNextMonthPlan())
-'''
-print(selectThisMonthPlan())
-print(selectToDayPlan())
-print(selectNextPlan())
-
