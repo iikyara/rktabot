@@ -1,0 +1,121 @@
+{% extends 'manager/base.html' %}
+
+{% block content %}
+	<style>
+	table {
+		width: 100%;
+		border-collapse: separate;
+		padding: 2px;
+	}
+	th{
+		white-space: nowrap;
+		width: 100px;
+		padding: 10px;
+	}
+	td{
+		padding: 10px
+	}
+	</style>
+    <h1>会計予定記入フォーム</h1>
+    <form method="POST" class="post-form" name="form">{% csrf_token %}
+    	{{ management }}
+    	<table border="1" cellpadding="10" cellspacing="0">
+    	<tr>
+    	<th></th>
+    	<th>タイトル（40文字以内）</th>
+    	<th>日付（年/月/日）</th>
+    	<th>開始時間（時:分）</th>
+    	<th>終了時間（時:分）</th>
+    	<th>内容（60文字以内）</th>
+    	<th>有効にする</th>
+    	<th><nobr>詳細</nobr></th>
+    	<th><nobr>削除</nobr></th>
+    	</tr>
+    	{% for form in formset %}
+    	{{ form.id }}
+    	<tr>
+    	<td>{{ forloop.counter }}</td>
+    	<td><nobr>{{ form.title }}</nobr><br><nobr>{{ form.title.errors }}</nobr></td>
+    	<td><nobr>{{ form.sdate }}</nobr><br><nobr>{{ form.sdate.errors }}</nobr></td>
+    	<td><nobr>{{ form.starttime }}</nobr><br><nobr>{{ form.starttime.errors }}</nobr></td>
+    	<td><nobr>{{ form.endtime }}</nobr><br><nobr>{{ form.endtime.errors }}</nobr></td>
+    	<td><nobr>{{ form.content }}</nobr><br><nobr>{{ form.content.errors }}</nobr></td>
+    	<td><nobr>{{ form.available }}利用する</nobr><br><nobr>{{ form.available.errors }}</nobr></td>
+    	<td><nobr><button type="button" class="save btn btn-default" name="btn_detail" onClick="window.open('/post/new/edit/?id={{ form.id.value }}')">詳細を書く</button></nobr></td>
+    	<td><nobr><button type="button" class="save btn btn-default" name="btn_delete" value="{{ form.id.value }}" onClick="deletesubmit(name,value)">削除</button></nobr></td>
+    	<td style="display:none;">{{ form.ORDER }}</td>
+    	</tr>
+    	{% endfor %}
+    	<tr>
+		<td colspan="9">
+		<button type="button" class="save btn btn-default" name="btn_add" onClick="actionsubmit(name)">1行追加</button>
+		<button type="button" class="save btn btn-default" name="btn_remove" onClick="actionsubmit(name)">1行削除（登録済みの予定は消えない）</button>
+		<button type="button" class="save btn btn-default" name="btn_order" onClick="ordersubmit(name)">日付順に並び替え</button>
+		</td>
+		</tr>
+		</table>
+		<br>
+		<button type="submit" class="save btn btn-default" name="btn_save">保存</button>
+		<button type="button" class="cansel btn btn-default" name="btn_cancel" onClick="cancelsubmit(name)">キャンセル</button>
+		<br>
+		<p>{{ message }}</p>
+		<input type="hidden" name="btn_name" value="">
+		<input type="hidden" name="delete_id" value="">
+	</form>
+	<input id="text_num" type="hidden" value="{{ text_num }}">
+	{% for t in text %}
+		<input name="order" type="hidden" value="{{ t.id }}">
+	{% endfor %}
+	<script type="text/javascript">
+		function actionsubmit(name){
+			var form = document.forms.form;
+			form.btn_name.value = name;
+			form.submit();
+		}
+		function deletesubmit(name, value){
+			if(window.confirm('本当に削除しますか？')){
+				document.getElementsByName('delete_id')[0].value = value;
+				actionsubmit(name);
+			}
+			else{
+				window.alert('キャンセルされました．');
+			}
+		}
+		function cancelsubmit(name){
+			if(window.confirm('編集を取り消しますか？')){
+				actionsubmit(name);
+			}
+		}
+		function ordersubmit(name){
+			var form = document.forms.form;
+			var initial_form_num = form['form-INITIAL_FORMS'].value;
+			var text_num = document.getElementById('text_num').value;
+			if(initial_form_num==0){
+				alert('予定がありません．');
+				return;
+			}else if(initial_form_num != text_num){
+				alert('そこそこ深刻な問題が発生しました．\n（たぶんサーバー側の問題）');
+				return;
+			}
+			var ids = [];
+			var orderings = {};
+			var ORDER = document.getElementsByName('order');
+			for(var i=0;i<initial_form_num;i++){
+				var fn_id = 'form-'+String(i)+'-id';
+				var id = form[fn_id].value;
+				ids.push(id);
+				order = ORDER[i].value;
+				orderings[order] = String(i+1);
+			}
+			for(var i=0;i<initial_form_num;i++){
+				var fn_order = 'form-'+String(i)+'-ORDER';
+				form[fn_order].value = orderings[ids[i]];
+			}
+			if(false){
+				alert('debug on');
+				return;
+			}
+			actionsubmit(name);
+		}
+	</script>
+{% endblock %}

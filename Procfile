@@ -1,0 +1,1 @@
+web: gunicorn rktabot.wsgi bot:app --log-file -

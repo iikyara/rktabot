@@ -1,0 +1,53 @@
+{% extends 'manager/base.html' %}
+
+{% block content %}
+    <h1>会計予定記入フォーム</h1>
+    <form method="POST" class="post-form" name="form">{% csrf_token %}
+    	<h3> {{ title }} </h3>
+    	詳細をここに書いてください．<br>
+    	{{ form.content }}
+    	<br>{{ form.errors.content }}<br>
+    	<input type="hidden" name="title" value="{{ title }}" />
+    	<input type="hidden" name="id" value="{{ id }}" />
+		<button type="button" class="save btn btn-default" name="btn_save" onClick="savesubmit(name)">保存</button>
+		<button type="button" class="cansel btn btn-default" name="btn_cancel" onClick="cancelsubmit(name)">キャンセル</button>
+		<br>{{ message }}
+		<input type="hidden" name="btn_name" value="">
+	</form>
+	<script type="text/javascript">
+		function actionsubmit(name){
+			var form = document.forms.form;
+			form.btn_name.value = name;
+			form.submit();
+		}
+		function savesubmit(name){
+			var content = document.forms.form['content'];
+			var text = content.value;
+			text = text.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g,'');
+			retText = AutoLink(text);
+			retText = retText.replace(/\r?\n/g, '<br>');
+			content.value = retText;
+			actionsubmit(name);
+		}
+		function cancelsubmit(name){
+			if(window.confirm('編集を取り消しますか？')){
+				actionsubmit(name);
+			}
+		}
+		
+		function AutoLink(str) {
+			var regexp_url = /((h?)(ttps?:\/\/[a-zA-Z0-9.\-_@:/~?%&;=+#',()*!]+))/g; // ']))/;
+			var regexp_makeLink = function(all, url, h, href) {
+				return '<a href="h' + href + '" target="_blank">' + url + '</a>';
+			}
+			return str.replace(regexp_url, regexp_makeLink);
+		}
+		window.onload = function () {
+			var content = document.forms.form['content'];
+			text = content.value;
+			text = text.replace(/(&lt;)/g, '<').replace(/(&gt;)/g, '>').replace(/<br>/g, '\n');
+			text = text.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g,'');
+			content.value = text;
+		};
+	</script>
+{% endblock %}
